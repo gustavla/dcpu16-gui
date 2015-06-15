@@ -1,0 +1,15 @@
+[package]
+name = "dcpu16-gui"
+version = "0.0.1"
+authors = ["Gustav Larsson <gustav.m.larsson@gmail.com>"]
+
+[dependencies]
+image = "0.3.11"
+piston = "0.1.4"
+piston2d-graphics = "0.1.4"
+pistoncore-glutin_window = "0.1.0"
+piston2d-opengl_graphics = "0.1.0"
+gl = "0.0.12"
+libc = "0.1.8"
+getopts = "0.2"
+dcpu16 = "0.0.3"

@@ -1,0 +1,20 @@
+; Attach screen
+SET A, 0
+SET B, vram
+HWI 0
+
+SET J, 0
+
+:loop
+SET I, vram
+ADD I, J
+ADD [I], 0x2000
+ADD J, 1
+IFN J, 12
+    SET PC, loop
+
+:crash
+SET PC, crash
+
+:vram
+DAT "Hello there!", 0
