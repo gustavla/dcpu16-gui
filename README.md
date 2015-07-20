@@ -1,3 +1,5 @@
+[![Crates.io](https://img.shields.io/crates/v/dcpu16-gui.svg)](https://crates.io/crates/dcpu16-gui)
+
 # DCPU-16 GUI
 
 DCPU-16 emulator GUI written in Rust 1.0 and Piston.
