@@ -195,11 +195,8 @@ fn main() {
 
     let path = Path::new(filename);
 
-    let opengl = OpenGL::_3_2;
-
     // Create an Glutin window.
     let window = Window::new(
-        opengl,
         WindowSettings::new(
             "DCPU-16 LEM1802",
             [640, 480]
@@ -252,8 +249,8 @@ fn main() {
     img.put_pixel(10, 10, image::Rgba([200, 0, 0, 255]));
 
 
-
     println!("Here");
+    let opengl = OpenGL::V3_2;
 
     // Create a new game and run it.
     let mut app = App {
