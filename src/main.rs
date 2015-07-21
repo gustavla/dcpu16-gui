@@ -248,8 +248,6 @@ fn main() {
 
     img.put_pixel(10, 10, image::Rgba([200, 0, 0, 255]));
 
-
-    println!("Here");
     let opengl = OpenGL::V3_2;
 
     // Create a new game and run it.
