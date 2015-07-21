@@ -1,7 +1,12 @@
 [package]
 name = "dcpu16-gui"
-version = "0.0.1"
+version = "0.0.3"
 authors = ["Gustav Larsson <gustav.m.larsson@gmail.com>"]
+description = "DCPU-16 emulator GUI"
+repository = "https://github.com/gustavla/dcpu16-gui"
+readme = "README.md"
+keywords = ["dcpu16", "gui", "cpu", "emulator", "simulator"]
+license = "MIT"
 
 [dependencies]
 image = "0.3.11"
