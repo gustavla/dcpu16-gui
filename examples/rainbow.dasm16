@@ -1,0 +1,51 @@
+; Attach screen
+SET A, 0
+SET B, vram
+HWI 0
+
+SET J, 0
+
+SET X, 2            ; Starting background color
+
+:loop
+SET I, vram
+ADD I, J
+
+SET [I], 0x0020
+
+SET Z, J            ; if j % 32 == 31: x++
+MOD Z, 32
+IFE Z, 0
+    ADD X, 1
+
+SET Y, X            ; [i] set bg to X
+SHL Y, 8
+AND [I], 0xf0ff
+ADD [I], Y
+
+ADD J, 1
+IFN J, 384
+    SET PC, loop
+
+; Welcome text
+
+SET I, welcome
+SET J, vram
+ADD J, 162
+:wloop
+ADD [J], 0xf000
+AND [j], 0xff00
+ADD [J], [I]
+
+ADD I, 1
+ADD J, 1
+IFN [I], 0
+    SET PC, wloop
+
+:crash
+SET PC, crash
+
+:welcome
+DAT "DCPU-16 with LEM1802 monitor", 0
+
+:vram

@@ -1,26 +1,23 @@
 extern crate dcpu16;
 extern crate piston;
-extern crate image;
 extern crate graphics;
-extern crate glutin_window;
 extern crate opengl_graphics;
 extern crate gl;
 extern crate libc;
 extern crate getopts;
+extern crate piston_window;
+extern crate image;
+extern crate event_loop;
 
-use libc::c_void;
-
-//use std::path::Path;
-use piston::window::WindowSettings;
-use piston::event::*;
 use std::path::Path;
 use std::env;
-use glutin_window::GlutinWindow as Window;
-use opengl_graphics::{ GlGraphics, OpenGL, Texture };
 use dcpu16::dcpu;
 use dcpu16::dcpu::{DCPU, Hardware};
-use gl::types::GLuint;
 use getopts::Options;
+use event_loop::{Events, EventLoop};
+use graphics::Transformed;
+use piston::input::{RenderEvent, Button, PressEvent};
+use piston::input::keyboard::Key;
 
 pub struct GUIHWMonitorLEM1802 {
     pub connected: bool,
@@ -34,6 +31,8 @@ const ROWS: usize = 12;
 const COLS: usize = 32;
 const FONT_WIDTH: usize = 4;
 const FONT_HEIGHT: usize = 8;
+const SCALE: u32 = 5;
+const BUFFER: u32 = 0;
 
 impl GUIHWMonitorLEM1802 {
     pub fn new() -> GUIHWMonitorLEM1802 {
@@ -112,10 +111,9 @@ impl Hardware for GUIHWMonitorLEM1802 {
             if self.connected {
                 for i in 0..ROWS {
                     for j in 0..COLS {
-                        //let (r, g, b) = (0, 0, 0);
                         let mem = cpu.mem[(self.ram_location as usize + i * COLS + j) % dcpu::MEMORY_SIZE];
-                        //println!("mem = {}", mem);
                         let c = (mem & 0x7f) as usize;
+                        // TODO: Blinking not supported yet
                         //let blink = (mem >> 7) & 1;
                         let bg_color_index = ((mem >> 8) & 0xf) as usize;
                         let fg_color_index = ((mem >> 12) & 0xf) as usize;
@@ -140,11 +138,7 @@ impl Hardware for GUIHWMonitorLEM1802 {
                                 slice[index * 3 + 2] = ((color      ) & 0xff) as u8;
                             }
                         }
-                        if j > 10 {
-                            break;
-                        }
                     }
-                    break;
                 }
             } else {
                 // Default screen
@@ -162,16 +156,6 @@ impl Hardware for GUIHWMonitorLEM1802 {
     }
 }
 
-
-pub struct App {
-    gl: GlGraphics, // OpenGL drawing backend.
-}
-
-impl App {
-    fn update(&mut self, _: &UpdateArgs) {
-
-    }
-}
 
 fn main() {
     let mut opts = Options::new();
@@ -194,15 +178,16 @@ fn main() {
     let ref filename = matches.free[0];
 
     let path = Path::new(filename);
+    let window_size = piston_window::Size {width: 128 * SCALE + BUFFER * 2 as u32, height: 96 * SCALE + BUFFER * 2};
 
-    // Create an Glutin window.
-    let window = Window::new(
-        WindowSettings::new(
-            "DCPU-16 LEM1802",
-            [640, 480]
+    let mut window: piston_window::PistonWindow = piston_window::WindowSettings::new(
+            "DCPU16 Monitor",
+            window_size
         )
         .exit_on_esc(true)
-    );
+        .opengl(piston_window::OpenGL::V3_2)
+        .build()
+        .unwrap();
 
     let mut cpu = DCPU::new();
     if let Err(why) = cpu.load_from_assembly_file(&path) {
@@ -215,63 +200,23 @@ fn main() {
 
     let mut img = image::ImageBuffer::new(128, 96);
 
-    let (width, height) = img.dimensions();
+    let mut text_sett = piston_window::TextureSettings::new();
+    text_sett.set_filter(piston_window::texture::Filter::Nearest);
+    let mut texture = piston_window::Texture::from_image(&mut window.factory, &mut img, &text_sett).unwrap();
 
-    let mut id: GLuint = 0;
-    unsafe {
-        gl::GenTextures(1, &mut id);
-        gl::BindTexture(gl::TEXTURE_2D, id);
-        gl::TexParameteri(
-            gl::TEXTURE_2D,
-            gl::TEXTURE_MIN_FILTER,
-            gl::NEAREST as i32
-        );
-        gl::TexParameteri(
-            gl::TEXTURE_2D,
-            gl::TEXTURE_MAG_FILTER,
-            gl::NEAREST as i32
-        );
-        gl::TexImage2D(
-            gl::TEXTURE_2D,
-            0,
-            gl::RGBA as i32,
-            width as i32,
-            height as i32,
-            0,
-            gl::RGBA,
-            gl::UNSIGNED_BYTE,
-            img.as_ptr() as *const c_void
-        );
-    }
-
-    let mut texture = Texture::new(id, width, height);
-
-    img.put_pixel(10, 10, image::Rgba([200, 0, 0, 255]));
-
-    let opengl = OpenGL::V3_2;
-
-    // Create a new game and run it.
-    let mut app = App {
-        gl: GlGraphics::new(opengl),
-    };
-
-    for e in window.events().max_fps(30).ups(30) {
-        if let Some(args) = e.render_args() {
-            //app.render(&args);
-            app.gl.draw(args.viewport(), |_, gl| {
-                graphics::clear([1.0; 4], gl);
-                let mut t = [[0f64; 3]; 2];
-                t[0][0] = 0.003125 * 5.0;
-                t[1][1] = -0.004167 * 5.0;
-                t[0][2] = -1.0;
-                t[1][2] = 1.0;
-
-                graphics::image(&texture, t, gl);
-            });
+    window.set_bench_mode(true);
+    let mut events = window.events();
+    //while let Some(e) = window.next() {
+    while let Some(e) = events.next(&mut window) {
+        if let Some(Button::Keyboard(key)) = e.press_args() {
+            if key == Key::Q {
+                // For now, Q can also quit (will change when keyboard support is added)
+                break;
+            }
         }
-
-        if let Some(u) = e.update_args() {
-            cpu.tick();
+        if let Some(_) = e.render_args() {
+            // TODO: Make the speed a setting
+            cpu.run(10000);
             let monitor = cpu.devices.get(0).unwrap();
             let v = &monitor.get_data(&cpu)[..];
             for k in 0..(v.len() / 3) {
@@ -279,8 +224,18 @@ fn main() {
                 img.put_pixel((k % 128) as u32, (k / 128) as u32, color);
             }
 
-            texture.update(&img);
-            app.update(&u);
+            match texture.update(&mut window.encoder, &img) {
+                Ok(_) => {},
+                Err(_) => {
+                    println!("Error");
+                }
+            }
         }
+        window.draw_2d(&e, |c, g| {
+            piston_window::clear([0.1, 0.0, 0.0, 1.0], g);
+
+            piston_window::image(&texture, c.transform
+                .trans(BUFFER as f64, BUFFER as f64).zoom(SCALE as f64), g);
+        });
     }
 }
