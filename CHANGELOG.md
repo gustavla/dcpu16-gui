@@ -1,7 +1,7 @@
 # Changelog
 
-## 0.1.2
-Released: TBD
+## 0.2.0
+Released: 2016-12-14
 * LEM1802
   * Full support for all interrupts
   * Added border (can be configured through interrupts)

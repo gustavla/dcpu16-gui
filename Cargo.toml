@@ -1,6 +1,6 @@
 [package]
 name = "dcpu16-gui"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Gustav Larsson <gustav.m.larsson@gmail.com>"]
 description = "DCPU-16 emulator GUI"
 repository = "https://github.com/gustavla/dcpu16-gui"
