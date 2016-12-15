@@ -9,6 +9,7 @@ keywords = ["dcpu16", "gui", "cpu", "emulator", "simulator"]
 license = "MIT"
 
 [dependencies]
+time = "0.1.35"
 image = "0.10.4"
 piston = "0.27.0"
 pistoncore-event_loop = "0.27.0"
@@ -18,4 +19,4 @@ piston_window = "0.58.0"
 gl = "0.6.1"
 libc = "0.1.8"
 getopts = "0.2.11"
-dcpu16 = "0.0.7"
+dcpu16 = "0.1.0"

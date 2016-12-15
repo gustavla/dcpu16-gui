@@ -1,0 +1,84 @@
+; Attach screen
+SET A, 0
+SET B, vram
+HWI 0
+
+; Load default font and set it
+SET A, 4
+SET B, font
+HWI 0
+
+SET A, 1
+SET B, font
+HWI 0
+
+; Modify font some to make a smiley
+SET [font+2], 0x3c6e
+SET [font+3], 0xdbbf
+SET [font+4], 0xbfdb
+SET [font+5], 0x6e3c
+
+SET A, 2
+SET B, palette
+HWI 0
+
+SET A, 3
+SET B, 0xf
+HWI 0
+
+SET A, 5
+SET B, vram
+HWI 0
+
+SET J, 0
+
+SET X, 2            ; Starting background color
+
+:loop
+SET I, vram
+ADD I, J
+
+SET [I], 0x0020
+
+SET Z, J            ; if j % 32 == 31: x++
+MOD Z, 32
+IFE Z, 0
+    ADD X, 1
+
+SET Y, X            ; [i] set bg to X
+SHL Y, 8
+AND [I], 0xf0ff
+ADD [I], Y
+
+ADD J, 1
+IFN J, 384
+    SET PC, loop
+
+; Welcome text
+
+SET I, welcome
+SET J, vram
+ADD J, 162
+:wloop
+ADD [J], 0xf000
+AND [j], 0xff00
+ADD [J], [I]
+
+ADD I, 1
+ADD J, 1
+IFN [I], 0
+    SET PC, wloop
+
+:crash
+SET PC, crash
+
+:welcome
+DAT 0x0081, 0x0082, " Custom palette & font ", 0x0081, 0x0082
+
+:palette
+DAT 0x0000, 0x0002, 0x0004, 0x0006, 0x0008, 0x000a, 0x000c, 0x000f, 0x002f, 0x004f, 0x006f, 0x008f, 0x00af, 0x00cf, 0x00ff, 0x0fff
+
+:font
+DAF 256, 0x0000
+
+:vram

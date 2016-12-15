@@ -26,7 +26,7 @@ Prints "Hello world!" in green to the screen:
     $ dcpu16-gui examples/hello.bin
 
 To automatically attach a monitor to address `0x8000` (as in older programs),
-run with the `-p` flag.
+run with `-m 0x8000`.
 
 ## Example 2
 
