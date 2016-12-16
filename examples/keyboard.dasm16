@@ -1,0 +1,78 @@
+
+SET X, 0
+SET[vram+X], 0xa0df
+
+IAS handler
+
+SET A, 0
+SET B, vram
+HWI 0
+
+SET A, 3
+SET B, 100
+HWI 1
+
+:crash
+SET PC, crash
+
+:handler
+;OUT st
+
+:loop
+SET A, 1
+HWI 1
+
+IFE C, 0
+    SET PC, exit
+
+IFE C, 0x10
+    SET PC, ifbs
+IFE C, 0x11
+    SET PC, ifrt
+SET PC, else
+:ifbs
+
+SET [vram+X], 0x0
+IFG X, 0
+    SUB X, 1
+;SET [vram+X], 0x0
+SET [vram+X], 0xa0df
+;SUB X, 1
+SET PC, endif
+
+:ifrt
+
+SET [vram+X], 0x0
+SET Z, X
+MOD Z, 32
+SET Y, 32
+SUB Y, Z
+:loop1
+ADD X, 1
+SUB Y, 1
+SET [vram+X], 0x0
+IFN Y, 0
+    SET PC, loop1
+
+SET [vram+X], 0xa0df
+;SET [vram+X], 0xf060
+
+SET PC, endif
+
+:else
+
+SET [vram+X], C
+BOR [vram+X], 0xa000
+ADD X, 1
+SET [vram+X], 0xa0df
+
+:endif
+
+SET PC, loop
+:exit
+RFI 0
+
+:st DAT "Start\n", 0
+
+:vram
+DAT 0x4123
