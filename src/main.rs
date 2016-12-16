@@ -10,6 +10,8 @@ extern crate image;
 extern crate event_loop;
 extern crate time;
 
+mod cli;
+
 mod monitor_lem1802;
 mod keyboard_generic;
 
@@ -26,10 +28,13 @@ use keyboard_generic::DeviceKeyboardGeneric;
 
 fn main() {
     let mut opts = Options::new();
-
     let args: Vec<String> = env::args().collect();
+    let program = args[0].clone();
+
     opts.optopt("m", "monitor", "Pre-connect monitor", "ADDRESS");
-    opts.optopt("f", "font", "Pre-connect font address", "ADDRESS");
+    opts.optopt("f", "font", "Pre-configure font", "ADDRESS");
+    opts.optflag("v", "version", "print version");
+    opts.optflag("h", "help", "print this help menu");
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => m,
         Err(why) => {
@@ -37,6 +42,17 @@ fn main() {
             return;
         },
     };
+
+    if matches.opt_present("h") {
+        cli::print_usage(&program, "FILE", opts,
+                         &["examples/rainbow.bin", "-m 0x8000 -f 0x8180 old-program.bin"]);
+        return;
+    }
+
+    if matches.opt_present("v") {
+        cli::print_version(&program);
+        return;
+    }
 
     if matches.free.len() != 1 {
         println!("Please input file");
