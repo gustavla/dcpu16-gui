@@ -1,5 +1,11 @@
 # Changelog
 
+## Next release
+Released: TBD
+* Added Generic Keyboard (' and ` still not triggering)
+* Moved device implementations to separate files
+* Dependency update: dcpu16 0.2.0
+
 ## 0.2.0
 Released: 2016-12-14
 * LEM1802
