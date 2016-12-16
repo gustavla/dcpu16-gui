@@ -20,7 +20,6 @@ use getopts::Options;
 use event_loop::{Events, EventLoop};
 use graphics::Transformed;
 use piston::input::{RenderEvent, Button, PressEvent, ReleaseEvent};
-use piston::input::keyboard::Key;
 
 use monitor_lem1802::{DeviceMonitorLEM1802, MONITOR_WIDTH, MONITOR_HEIGHT, SCALE, BORDER};
 use keyboard_generic::DeviceKeyboardGeneric;
