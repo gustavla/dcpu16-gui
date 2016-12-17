@@ -11,10 +11,7 @@ extern crate event_loop;
 extern crate time;
 
 mod cli;
-
-mod monitor_lem1802;
-mod keyboard_generic;
-mod floppy_m35fd;
+mod devices;
 
 use std::path::Path;
 use std::env;
@@ -25,9 +22,9 @@ use graphics::Transformed;
 use piston::input::{RenderEvent, Button, PressEvent, ReleaseEvent};
 use piston::input::keyboard::Key;
 
-use monitor_lem1802::{DeviceMonitorLEM1802, MONITOR_WIDTH, MONITOR_HEIGHT, SCALE, BORDER};
-use keyboard_generic::DeviceKeyboardGeneric;
-use floppy_m35fd::{DeviceFloppyM35FD, FloppyDisk};
+use devices::monitor_lem1802::{DeviceMonitorLEM1802, MONITOR_WIDTH, MONITOR_HEIGHT, SCALE, BORDER};
+use devices::keyboard_generic::DeviceKeyboardGeneric;
+use devices::floppy_m35fd::{DeviceFloppyM35FD, FloppyDisk};
 
 fn main() {
     let mut opts = Options::new();
@@ -150,7 +147,7 @@ fn main() {
             {
                 let mut dev = devices.get(1).unwrap().borrow_mut();
                 if let Some(mut keyboard) = dev.as_any_mut().downcast_mut::<DeviceKeyboardGeneric>() {
-                    let v = keyboard_generic::piston_key_to_code(key);
+                    let v = devices::keyboard_generic::piston_key_to_code(key);
                     if v > 0 {
                         keyboard.register_press(&mut cpu, v);
                     }
@@ -180,7 +177,7 @@ fn main() {
             {
                 let mut dev = devices.get(1).unwrap().borrow_mut();
                 if let Some(mut keyboard) = dev.as_any_mut().downcast_mut::<DeviceKeyboardGeneric>() {
-                    let v = keyboard_generic::piston_key_to_code(key);
+                    let v = devices::keyboard_generic::piston_key_to_code(key);
                     if v > 0 {
                         keyboard.register_release(&mut cpu, v);
                     }
