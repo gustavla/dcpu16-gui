@@ -211,6 +211,8 @@ impl Device for DeviceKeyboardGeneric {
         }
     }
 
+    fn run(&mut self, _: &mut DCPU, _: usize) -> () {}
+
     fn as_any(&self) -> &Any {
         self
     }

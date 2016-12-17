@@ -257,6 +257,8 @@ impl Device for DeviceMonitorLEM1802 {
         }
     }
 
+    fn run(&mut self, _: &mut DCPU, _: usize) -> () {}
+
     fn as_any(&self) -> &Any {
         self
     }
