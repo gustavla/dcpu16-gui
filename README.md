@@ -19,6 +19,18 @@ Now install DCPU-16 and DCPU-16-GUI through Cargo:
 This will install a variety of binaries that all start with `dcpu16`, so try
 typing that in and hit tab.
 
+## Devices
+
+Implemented devices:
+
+* Monitor (LEM1802)
+* Generic keyboard
+* Floppy drive (M35FD)
+
+They are attached with device indices 0 (monitor), 1 (keyboard), and 2
+(floppy). The floppy drive is empty at start, but you have an all-zero floppy
+disk that can be inserted/ejected by hitting F1.
+
 ## Example
 
 Prints "Hello world!" in green to the screen:

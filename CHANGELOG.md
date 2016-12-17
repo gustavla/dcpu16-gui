@@ -2,9 +2,11 @@
 
 ## Next release
 Released: TBD
-* Added Generic Keyboard (' and ` still not triggering)
+* Added Generic Keyboard (`DeviceKeyboardGeneric`)
+  * The quotation and backtick keys are not triggering for some reason
+* Added Floppy Drive (`DeviceFloppyM35FD`)
 * Moved device implementations to separate files
-* Dependency update: dcpu16 0.2.0
+* Dependency update: dcpu16 0.3.0
 
 ## 0.2.0
 Released: 2016-12-14

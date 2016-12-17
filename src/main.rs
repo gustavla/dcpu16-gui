@@ -14,6 +14,7 @@ mod cli;
 
 mod monitor_lem1802;
 mod keyboard_generic;
+mod floppy_m35fd;
 
 use std::path::Path;
 use std::env;
@@ -22,9 +23,11 @@ use getopts::Options;
 use event_loop::{Events, EventLoop};
 use graphics::Transformed;
 use piston::input::{RenderEvent, Button, PressEvent, ReleaseEvent};
+use piston::input::keyboard::Key;
 
 use monitor_lem1802::{DeviceMonitorLEM1802, MONITOR_WIDTH, MONITOR_HEIGHT, SCALE, BORDER};
 use keyboard_generic::DeviceKeyboardGeneric;
+use floppy_m35fd::{DeviceFloppyM35FD, FloppyDisk};
 
 fn main() {
     let mut opts = Options::new();
@@ -116,10 +119,17 @@ fn main() {
         None => monitor,
     };
 
-    let keyboard = DeviceKeyboardGeneric::new();
-
     cpu.add_device(Box::new(monitor));
+
+    let keyboard = DeviceKeyboardGeneric::new();
     cpu.add_device(Box::new(keyboard));
+
+    let floppy_drive = DeviceFloppyM35FD::new();
+    let mut disk = Some(FloppyDisk::new());
+
+    cpu.add_device(Box::new(floppy_drive));
+
+    // TODO: Make devices configurable through CLI instead
 
     let mut img = image::ImageBuffer::new(MONITOR_WIDTH as u32, MONITOR_HEIGHT as u32);
 
@@ -128,7 +138,7 @@ fn main() {
     let mut texture = piston_window::Texture::from_image(&mut window.factory, &mut img, &text_sett).unwrap();
 
     window.set_bench_mode(true);
-    let mut events = window.events();
+    let mut events = window.events().max_fps(30);
     while let Some(e) = events.next(&mut window) {
         let time = time::get_time();
         let blinkout = time.nsec > 500_000_000;
@@ -146,6 +156,24 @@ fn main() {
                     }
                 }
             }
+
+            // Toggle insert/eject floppy
+            if key == Key::F1 {
+                let devices = cpu.devices.clone();
+                {
+                    let mut dev = devices.get(2).unwrap().borrow_mut();
+                    if let Some(mut drive) = dev.as_any_mut().downcast_mut::<DeviceFloppyM35FD>() {
+                        if disk.is_some() {
+                            let disk0 = disk.take();
+                            drive.insert(disk0.unwrap());
+                            println!("Inserted floppy disk");
+                        } else {
+                            disk = drive.eject();
+                            println!("Ejected floppy disk");
+                        }
+                    }
+                }
+            }
         }
         if let Some(Button::Keyboard(key)) = e.release_args() {
             let devices = cpu.devices.clone();
@@ -160,8 +188,8 @@ fn main() {
             }
         }
         if let Some(_) = e.render_args() {
-            // TODO: Make the speed a setting
-            cpu.run(3000);
+            // With FPS at 30, this will make the DCPU-16 run at 100 kHz
+            cpu.run(3333);
             let dev = cpu.devices.get(0).unwrap().borrow();
             if let Some(monitor) = dev.as_any().downcast_ref::<DeviceMonitorLEM1802>() {
                 let v = &monitor.data(&cpu, blinkout)[..];
